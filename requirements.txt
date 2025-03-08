@@ -1,0 +1,7 @@
+supervision
+opencv-python
+transformers
+einops
+timm
+keyboard
+git+https://github.com/facebookresearch/sam2.git
