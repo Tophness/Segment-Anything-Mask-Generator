@@ -3,6 +3,8 @@ checkpoints/
 
 # Tests
 test/
+main_gpu.py
+skip.py
 
 # Working Files
 mooning_2025
