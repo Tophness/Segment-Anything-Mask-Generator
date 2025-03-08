@@ -344,9 +344,6 @@ def main(input_folder, output_folder):
     while 0 <= current_index < len(image_files):
         filename = image_files[current_index]
         base_name, _ = os.path.splitext(filename)
-        if filename in existing and not manual_filemode:
-            print(f"Skipping {filename}, mask exists.")
-            current_index += 1; continue
         path = os.path.join(input_folder, filename)
         orig_image = cv2.imread(path)
         if orig_image is None:

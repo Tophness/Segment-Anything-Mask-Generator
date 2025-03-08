@@ -1,3 +1,20 @@
+# Checkpoints
+checkpoints/
+
+# Tests
+test/
+
+# Working Files
+folderB_
+mooning_2025
+upskirt_uncropped_final_2025_masks
+upskirt_uncropped_final_2025
+upskirt_uncropped_final_2025_masks_
+
+# Batch Run Scripts
+noskip.bat
+main.bat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
