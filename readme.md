@@ -61,15 +61,15 @@ Selecting a hand in AI mode
 
 Drawing a white mask in lasso mode
 
-![seg2](https://github.com/user-attachments/assets/9a629356-17cc-4809-88f9-ad48aa91061d)
+![seg2](https://github.com/user-attachments/assets/c33d7536-530b-4e98-a844-94fecef11b22)
 
 Removing part of a mask in lasso mode
 
-![seg3](https://github.com/user-attachments/assets/6693d9f0-e94c-47b9-8cad-b26e851b8f6c)
+![seg3](https://github.com/user-attachments/assets/f4acd5f6-2838-4a87-ba0a-5019c4e25f80)
 
 Drawing a grey mask in paintbrush mode
 
-![seg4](https://github.com/user-attachments/assets/6b0ec7f5-a7fc-47d6-b536-0b8f2a789226)
+![seg4](https://github.com/user-attachments/assets/1583447b-f373-4b9e-a0e3-71e057a1d190)
 
 
 ## License
