@@ -9,7 +9,7 @@ TINY_CHECKPOINT = os.path.join(BASE_DIR, "checkpoints", "sam2.1_hiera_tiny.pt")
 LARGE_CONFIG = os.path.join(BASE_DIR, "configs", "sam2.1_hiera_l.yaml")
 LARGE_CHECKPOINT = os.path.join(BASE_DIR, "checkpoints", "sam2.1_hiera_large.pt")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 added_masks = []; removed_masks = []; history = []; locked_points = []
 grey_masks = []; grey_locked_points = []; remove_locked_points = []
