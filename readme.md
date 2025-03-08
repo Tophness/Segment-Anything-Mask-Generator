@@ -56,15 +56,19 @@ Ultimately, all masks need transparency filled in black afterward, but it's much
 
 ## Screenshots
 Selecting a hand in AI mode
+
 ![seg1](https://github.com/user-attachments/assets/38e606a9-6fe4-4fa7-bd25-834f47f48a18)
 
 Drawing a white mask in lasso mode
+
 ![seg2](https://github.com/user-attachments/assets/9a629356-17cc-4809-88f9-ad48aa91061d)
 
 Removing part of a mask in lasso mode
+
 ![seg3](https://github.com/user-attachments/assets/6693d9f0-e94c-47b9-8cad-b26e851b8f6c)
 
 Drawing a grey mask in paintbrush mode
+
 ![seg4](https://github.com/user-attachments/assets/6b0ec7f5-a7fc-47d6-b536-0b8f2a789226)
 
 
