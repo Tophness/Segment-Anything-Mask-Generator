@@ -25,6 +25,8 @@ This Python script allows for interactive image masking using either AI-based se
   - Press `R` to reset masks
 - **Navigation**
   - Press `left` and `right` keys to navigate between files.
+- **AI Mode (Florence 2 + Segment Anything 2.1)**
+  - Provide a prompt along with input and output folders to automatically mask every image in the folder
 
 ## Installation
 
