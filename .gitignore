@@ -3,8 +3,6 @@ checkpoints/
 
 # Tests
 test/
-main_gpu.py
-noskip.py
 
 # Working Files
 mooning_2025
@@ -12,7 +10,6 @@ upskirt_uncropped_final_2025_masks
 upskirt_uncropped_final_2025
 
 # Batch Run Scripts
-noskip.bat
 main.bat
 
 # Byte-compiled / optimized / DLL files

@@ -1,0 +1,3 @@
+save_transparency_black: false
+skip_existing_files: false
+use_gpu: false

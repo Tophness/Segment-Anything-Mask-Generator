@@ -5,4 +5,6 @@ einops
 timm
 keyboard
 requests
+pystray
+PyYAML
 git+https://github.com/facebookresearch/sam2.git
