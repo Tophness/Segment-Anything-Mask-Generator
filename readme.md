@@ -51,7 +51,6 @@ For black and white masking (like kohya training scripts use), you can use this:
 ```sh
 python sam_florence_bw.py --input_folder "folderpath" --output_folder "folderpath" --object "person"
 ```
-Ultimately, all masks need transparency filled in black afterward, but it's much easier to edit the masks with transparency first, as you very rarely get everything right automatically.
 
 
 ## Screenshots
