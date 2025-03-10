@@ -1,4 +1,5 @@
 import os, cv2, torch, numpy as np, argparse, keyboard, time, requests, threading, tkinter as tk, yaml
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageDraw
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -11,28 +12,26 @@ TINY_CHECKPOINT = os.path.join(BASE_DIR, "checkpoints", "sam2.1_hiera_tiny.pt")
 LARGE_CONFIG = os.path.join(BASE_DIR, "configs", "sam2.1_hiera_l.yaml")
 LARGE_CHECKPOINT = os.path.join(BASE_DIR, "checkpoints", "sam2.1_hiera_large.pt")
 
-use_gpu = False
-skip_existing_files = False
-save_transparency_black = False
+base_url = "https://dl.fbaipublicfiles.com/segment_anything_2/092824"
+checkpoints = {
+    "sam2.1_hiera_tiny.pt": f"{base_url}/sam2.1_hiera_tiny.pt",
+    "sam2.1_hiera_large.pt": f"{base_url}/sam2.1_hiera_large.pt"
+}
 
+use_gpu = False; skip_existing_files = False; save_transparency_black = False
 def load_settings():
     global use_gpu, skip_existing_files, save_transparency_black
     if os.path.exists(SETTINGS_FILE):
         with open(SETTINGS_FILE, "r") as f:
             data = yaml.safe_load(f)
-        use_gpu = data.get("use_gpu", torch.cuda.is_available())
-        skip_existing_files = data.get("skip_existing_files", True)
+        use_gpu = data.get("use_gpu", False)
+        skip_existing_files = data.get("skip_existing_files", False)
         save_transparency_black = data.get("save_transparency_black", False)
     else:
         save_settings()
-
 def save_settings():
     global use_gpu, skip_existing_files, save_transparency_black
-    data = {
-        "use_gpu": use_gpu,
-        "skip_existing_files": skip_existing_files,
-        "save_transparency_black": save_transparency_black
-    }
+    data = {"use_gpu": use_gpu, "skip_existing_files": skip_existing_files, "save_transparency_black": save_transparency_black}
     with open(SETTINGS_FILE, "w") as f:
         yaml.safe_dump(data, f)
 
@@ -338,9 +337,87 @@ def create_image():
 def exit_app(icon):
     os._exit(0)
 
+def open_florence_ui():
+    def browse_input():
+        path = filedialog.askdirectory()
+        if path:
+            entry_input.delete(0, tk.END)
+            entry_input.insert(0, path)
+    def browse_output():
+        path = filedialog.askdirectory()
+        if path:
+            entry_output.delete(0, tk.END)
+            entry_output.insert(0, path)
+    def start_florence():
+        inp = entry_input.get()
+        out = entry_output.get()
+        txt = entry_text.get()
+        if not os.path.isdir(inp) or not os.path.isdir(out) or not txt:
+            messagebox.showerror("Error", "Invalid input/output folder or empty text.")
+            return
+        threading.Thread(target=lambda: (florence_main(inp, out, txt), messagebox.showinfo("Info", "Florence Mask Generation Completed"))).start()
+    root = tk.Tk()
+    root.title("Florence Mask Generator")
+    tk.Label(root, text="Input Folder").grid(row=0, column=0)
+    entry_input = tk.Entry(root, width=40)
+    entry_input.grid(row=0, column=1)
+    tk.Button(root, text="Browse", command=browse_input).grid(row=0, column=2)
+    tk.Label(root, text="Output Folder").grid(row=1, column=0)
+    entry_output = tk.Entry(root, width=40)
+    entry_output.grid(row=1, column=1)
+    tk.Button(root, text="Browse", command=browse_output).grid(row=1, column=2)
+    tk.Label(root, text="Prompt Text").grid(row=2, column=0)
+    entry_text = tk.Entry(root, width=40)
+    entry_text.grid(row=2, column=1, columnspan=2)
+    tk.Button(root, text="Start", command=start_florence).grid(row=3, column=1)
+    tk.Button(root, text="Close", command=root.destroy).grid(row=3, column=2)
+    root.mainloop()
+
+def loadsam():
+    global base_url, checkpoints
+    os.makedirs("checkpoints", exist_ok=True)
+    for filename, url in checkpoints.items():
+        download_checkpoint(url, os.path.join("checkpoints", filename))
+    loadmodels()
+
+def open_sam_ui():
+    def browse_input():
+        path = filedialog.askdirectory()
+        if path:
+            entry_input.delete(0, tk.END)
+            entry_input.insert(0, path)
+    def browse_output():
+        path = filedialog.askdirectory()
+        if path:
+            entry_output.delete(0, tk.END)
+            entry_output.insert(0, path)
+    def start_florence():
+        inp = entry_input.get()
+        out = entry_output.get()
+        if not os.path.isdir(inp) or not os.path.isdir(out):
+            messagebox.showerror("Error", "Invalid input/output folder or empty text.")
+            return
+        loadsam()
+        threading.Thread(target=lambda: (main(inp, out))).start()
+    root = tk.Tk()
+    root.title("SAM 2.1 Mask Generator")
+    tk.Label(root, text="Input Folder").grid(row=0, column=0)
+    entry_input = tk.Entry(root, width=40)
+    entry_input.grid(row=0, column=1)
+    tk.Button(root, text="Browse", command=browse_input).grid(row=0, column=2)
+    tk.Label(root, text="Output Folder").grid(row=1, column=0)
+    entry_output = tk.Entry(root, width=40)
+    entry_output.grid(row=1, column=1)
+    tk.Button(root, text="Browse", command=browse_output).grid(row=1, column=2)
+    tk.Button(root, text="Start", command=start_florence).grid(row=3, column=1)
+    tk.Button(root, text="Close", command=root.destroy).grid(row=3, column=2)
+    root.mainloop()
+
 def setup_systray():
     icon = pystray.Icon("SAM2", create_image(), "SAM2", menu=pystray.Menu(
         pystray.MenuItem("Settings", lambda: threading.Thread(target=open_settings).start()),
+        pystray.MenuItem("Florence Mask Generator", lambda: threading.Thread(target=open_florence_ui).start()),
+        pystray.MenuItem("SAM 2.1 / Manual Mask Generator", lambda: threading.Thread(target=open_sam_ui).start()),
         pystray.MenuItem("Exit", lambda: exit_app(icon))
     ))
     icon.run()
@@ -348,6 +425,45 @@ def setup_systray():
 def start_systray():
     t = threading.Thread(target=setup_systray, daemon=True)
     t.start()
+
+def florence_main(input_folder, output_folder, text):
+    from contextlib import nullcontext
+    import supervision as sv
+    from utils.florence import run_florence_inference, load_florence_model, FLORENCE_OPEN_VOCABULARY_DETECTION_TASK
+    from utils.sam import run_sam_inference, load_sam_image_model
+    FLORENCE_MODEL, FLORENCE_PROCESSOR = load_florence_model(device=device)
+    SAM_IMAGE_MODEL = load_sam_image_model(device=device)
+    for fname in os.listdir(input_folder):
+        if not fname.lower().endswith((".png", ".jpg", ".jpeg")):
+            continue
+        img_path = os.path.join(input_folder, fname)
+        img = Image.open(img_path).convert("RGB")
+        with torch.inference_mode():
+            ctx = torch.autocast(device_type=device.type, dtype=torch.bfloat16) if device.type=="cuda" and use_gpu else nullcontext()
+            with ctx:
+                _, result = run_florence_inference(
+                    model=FLORENCE_MODEL,
+                    processor=FLORENCE_PROCESSOR,
+                    device=device,
+                    image=img,
+                    task=FLORENCE_OPEN_VOCABULARY_DETECTION_TASK,
+                    text=text
+                )
+                detections = sv.Detections.from_lmm(lmm=sv.LMM.FLORENCE_2, result=result, resolution_wh=img.size)
+                detections = run_sam_inference(SAM_IMAGE_MODEL, img, detections)
+        if(save_transparency_black):
+            mask_array = np.zeros(img.size[::-1], dtype=np.uint8)
+        else:
+            mask_array = np.zeros((*img.size[::-1], 4), dtype=np.uint8)
+            mask_array[detections.mask.any(axis=0), :3] = 255
+            mask_array[detections.mask.any(axis=0), 3] = 255
+        if detections.mask is not None and len(detections.mask):
+            for m in detections.mask:
+                if m.ndim==3 and m.shape[0]==1:
+                    m = m.squeeze(0)
+                mask_array[m] = 255
+        out_fname = os.path.splitext(fname)[0] + ".png"
+        Image.fromarray(mask_array, mode="RGBA").save(os.path.join(output_folder, out_fname))
 
 def main(input_folder, output_folder):
     global orig_image, display_image, preview_scale, added_masks, removed_masks, grey_masks, history, locked_points, preview_point, current_preview_mask, current_preview_color
@@ -448,18 +564,14 @@ def main(input_folder, output_folder):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="SAM2 Dual-Model Interactive Masking")
-    parser.add_argument("--input_folder", type=str, default="folderA")
-    parser.add_argument("--output_folder", type=str, default="folderB")
+    parser.add_argument("--input_folder", type=str)
+    parser.add_argument("--output_folder", type=str)
     args = parser.parse_args()
-    os.makedirs("checkpoints", exist_ok=True)
     load_settings()
-    base_url = "https://dl.fbaipublicfiles.com/segment_anything_2/092824"
-    checkpoints = {
-        "sam2.1_hiera_tiny.pt": f"{base_url}/sam2.1_hiera_tiny.pt",
-        "sam2.1_hiera_large.pt": f"{base_url}/sam2.1_hiera_large.pt"
-    }
-    for filename, url in checkpoints.items():
-        download_checkpoint(url, os.path.join("checkpoints", filename))
     start_systray()
-    loadmodels()
-    main(args.input_folder, args.output_folder)
+    if(args.input_folder and args.output_folder):
+        loadsam()
+        main(args.input_folder, args.output_folder)
+    else:
+        while(True):
+            time.sleep(1)

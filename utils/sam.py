@@ -1,5 +1,5 @@
 from typing import Any
-
+import os
 import numpy as np
 import supervision as sv
 import torch
@@ -7,8 +7,9 @@ from PIL import Image
 from sam2.build_sam import build_sam2, build_sam2_video_predictor
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 
-SAM_CHECKPOINT = r"E:\Downloads\Segment\checkpoints\sam2.1_hiera_large.pt"
-SAM_CONFIG = r"E:\Downloads\Segment\configs\sam2.1_hiera_l.yaml"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SAM_CHECKPOINT = os.path.join(BASE_DIR, "checkpoints", "sam2.1_hiera_large.pt")
+SAM_CONFIG = os.path.join(BASE_DIR, "configs", "sam2.1_hiera_l.yaml")
 
 
 def load_sam_image_model(
