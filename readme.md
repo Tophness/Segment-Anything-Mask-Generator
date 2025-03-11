@@ -32,9 +32,10 @@ This Python script allows for interactive image masking using either AI-based se
 
 ## Installation
 
-Ensure you have Python installed, then run the following commands:
+Ensure you have Git and Python installed, then run the following commands:
 
 ```sh
+git clone https://github.com/Tophness/Segment-Anything-Mask-Generator
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 ```
