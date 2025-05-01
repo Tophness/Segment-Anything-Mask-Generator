@@ -1,4 +1,4 @@
-import os, cv2, torch, numpy as np, argparse, keyboard, time, requests, threading, tkinter as tk, yaml
+import os, cv2, torch, numpy as np, argparse, time, requests, threading, tkinter as tk, yaml
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageDraw
 from sam2.build_sam import build_sam2
@@ -530,14 +530,14 @@ def main(input_folder, output_folder, start_file=None):
         update_display()
         prev_ctrl = False
         while True:
-            if cv2.getWindowProperty("Image", cv2.WND_PROP_VISIBLE) >= 1 and keyboard.is_pressed('ctrl'):
+            k = cv2.waitKeyEx(1)
+            if k == 9:
                 if not prev_ctrl:
                     ai_mode = not ai_mode; current_preview_mask = None; current_preview_color = None
                     if ai_mode:
                         lasso_mode = True; drawing_lasso = False; lasso_points = []; lasso_current_point = None
                 prev_ctrl = True
             else: prev_ctrl = False
-            k = cv2.waitKeyEx(1)
             if k in (2490368,):
                 brush_radius += 1; update_display()
             elif k in (2621440,):

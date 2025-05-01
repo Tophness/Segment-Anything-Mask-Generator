@@ -7,6 +7,8 @@ This Python script allows for interactive image masking using either AI-based se
 - **AI Mode (Segment Anything 2.1)**
   - Hovering over objects previews a mask using the tiny model.
   - Clicking applies a mask using the large model.
+- **AI Mode (Florence 2 + Segment Anything 2.1)**
+  - Provide a prompt along with input and output folders to automatically mask every image in the folder
 - **Manual Masking Mode**
   - **Lasso Selection (Default Mode)**
     - Press `L` to toggle lasso mode.
@@ -27,8 +29,8 @@ This Python script allows for interactive image masking using either AI-based se
   - Press `esc` to fullscreen
 - **Navigation**
   - Press `left` and `right` keys to navigate between files.
-- **AI Mode (Florence 2 + Segment Anything 2.1)**
-  - Provide a prompt along with input and output folders to automatically mask every image in the folder
+- **Toggle AI Mode**
+  - Press `tab` to toggle AI mode (off by default)
 
 ## Installation
 
