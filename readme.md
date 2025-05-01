@@ -50,9 +50,9 @@ Run the script with:
 ```sh
 python main.py
 ```
-You can also provide input and output folders to automatically launch in manual / SAM 2.1 mask editing mode using those folders:
+You can also provide input and output folders to automatically launch in manual / SAM 2.1 mask editing mode using those folders, choose a file in the folders to start from and use cpu if you don't want to use gpu:
 ```sh
-python main.py --input_folder "folderpath" --output_folder "folderpath"
+python main.py --input_folder "folderpath" --output_folder "folderpath" --start_file "start_file.png" --cpu
 ```
 
 
