@@ -35,8 +35,6 @@ def save_settings():
     with open(SETTINGS_FILE, "w") as f:
         yaml.safe_dump(data, f)
 
-device = torch.device("cuda" if use_gpu and torch.cuda.is_available() else "cpu")
-
 added_masks = []; removed_masks = []; history = []; locked_points = []
 grey_masks = []; grey_locked_points = []; remove_locked_points = []
 preview_point = None; orig_image = None; display_image = None; current_preview_mask = None; current_preview_color = None
@@ -465,15 +463,37 @@ def florence_main(input_folder, output_folder, text):
         out_fname = os.path.splitext(fname)[0] + ".png"
         Image.fromarray(mask_array, mode="RGBA").save(os.path.join(output_folder, out_fname))
 
-def main(input_folder, output_folder):
+def main(input_folder, output_folder, start_file=None):
     global orig_image, display_image, preview_scale, added_masks, removed_masks, grey_masks, history, locked_points, preview_point, current_preview_mask, current_preview_color
     global ai_mode, brush_radius, painting, current_brush, paint_cursor, current_paint_mask, current_paint_type, manual_filemode, preview_offset_x, preview_offset_y, fullscreen
     global lasso_mode, drawing_lasso, lasso_points, lasso_current_point, grey_locked_points, remove_locked_points
     os.makedirs(output_folder, exist_ok=True)
-    image_files = [f for f in os.listdir(input_folder) if f.lower().endswith(('.jpg','.jpeg','.png','.bmp'))]
+    all_image_files = [f for f in os.listdir(input_folder) if f.lower().endswith(('.jpg','.jpeg','.png','.bmp'))]
+    if not all_image_files: 
+        print("No valid images found in input folder.")
+        return
+    def get_mask_mtime(filename):
+        mask_basename = os.path.splitext(filename)[0] + ".png"
+        mask_path = os.path.join(output_folder, mask_basename)
+        if os.path.exists(mask_path):
+            try:
+                return os.path.getmtime(mask_path)
+            except OSError:
+                return float('inf')
+        else:
+            return float('inf')
+    image_files = sorted(all_image_files, key=get_mask_mtime, reverse=True)
     if not image_files: print("No valid images found."); return
     existing = {f for f in os.listdir(output_folder)}
     current_index = 0
+    if start_file:
+        try:
+            current_index = image_files.index(start_file)
+            print(f"Starting processing from specified file: {start_file} at index {current_index}")
+        except ValueError:
+            print(f"Warning: Specified start file '{start_file}' not found in the input folder. Starting from the beginning.")
+            print(image_files)
+            current_index = 0
     while 0 <= current_index < len(image_files):
         filename = image_files[current_index]
         if skip_existing_files and filename in existing and not manual_filemode:
@@ -510,7 +530,7 @@ def main(input_folder, output_folder):
         update_display()
         prev_ctrl = False
         while True:
-            if keyboard.is_pressed('ctrl'):
+            if cv2.getWindowProperty("Image", cv2.WND_PROP_VISIBLE) >= 1 and keyboard.is_pressed('ctrl'):
                 if not prev_ctrl:
                     ai_mode = not ai_mode; current_preview_mask = None; current_preview_color = None
                     if ai_mode:
@@ -566,12 +586,18 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="SAM2 Dual-Model Interactive Masking")
     parser.add_argument("--input_folder", type=str)
     parser.add_argument("--output_folder", type=str)
+    parser.add_argument("--start_file", type=str, default=None, help="Filename to start processing from within the input folder.")
+    parser.add_argument("--cpu", action="store_true", help="Force CPU usage even if GPU is available and enabled in settings.")
     args = parser.parse_args()
     load_settings()
     start_systray()
+    if args.cpu:
+        device = torch.device("cpu")
+    else:
+        device = torch.device("cuda" if use_gpu and torch.cuda.is_available() else "cpu")
     if(args.input_folder and args.output_folder):
         loadsam()
-        main(args.input_folder, args.output_folder)
+        main(args.input_folder, args.output_folder, args.start_file)
     else:
         while(True):
             time.sleep(1)
